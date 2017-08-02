@@ -1,52 +1,58 @@
 package Game;
 
-import sun.java2d.loops.DrawRect;
-
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
-/**
- * Created by Blaalid on 30.07.2017.
- */
-public class Canvas extends JPanel {
-    private static final int RECT_X = 20;
-    private static final int RECT_Y = RECT_X;
-    private static final int RECT_WIDTH =400;
-    private static final int RECT_HEIGHT = RECT_WIDTH;
+public class Canvas extends JPanel implements ActionListener {
+    private Snake snake;
+    private Timer timer;
+    private final int DELAY = 10;
+
+    public Canvas(){
+        initCanvas();
+    }
 
     @Override
     protected void paintComponent(Graphics g){
         super.paintComponent(g);
-        g.drawRect(RECT_X, RECT_Y, RECT_WIDTH, RECT_HEIGHT);
+        draw(g);
+        Toolkit.getDefaultToolkit().sync();
     }
 
+    public void draw(Graphics g){
+        Graphics2D g2D = (Graphics2D) g;
+        g2D.drawImage(snake.getImage(), snake.getX(), snake.getY(),this);
+    }
+
+    public void initCanvas(){
+        addKeyListener(new KeyBoardAdapter());
+        setFocusable(true);
+        setBackground(Color.black);
+
+        snake = new Snake();
+
+        timer = new Timer(DELAY, this);
+        timer.start();
+    }
     @Override
-    public Dimension getPreferredSize(){
-        return new Dimension(RECT_WIDTH + 2 * RECT_X, RECT_HEIGHT + 2* RECT_Y);
+    public void actionPerformed(ActionEvent e) {
+        snake.move();
+        repaint();
     }
 
-    public void draw(){
-        JFrame frame = new JFrame("DrawRect");
-        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.getContentPane().add(new Canvas());
-        frame.pack();
-        frame.setLocationByPlatform(true);
-        frame.setVisible(true);
-    }
+    private class KeyBoardAdapter extends KeyAdapter{
+        @Override
+        public void keyReleased(KeyEvent e){
+            snake.keyReleased(e);
+        }
 
-    public static int getRectX() {
-        return RECT_X;
-    }
-
-    public static int getRectY() {
-        return RECT_Y;
-    }
-
-    public static int getRectWidth() {
-        return RECT_WIDTH;
-    }
-
-    public static int getRectHeight() {
-        return RECT_HEIGHT;
+        @Override
+        public void keyPressed(KeyEvent e){
+            snake.keyPressed(e);
+        }
     }
 }
